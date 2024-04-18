@@ -30,3 +30,5 @@ urdf/*
 
 # Logs
 logs/*
+outputs/*
+processed_data/*

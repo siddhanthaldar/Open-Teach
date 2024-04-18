@@ -1,4 +1,5 @@
 import os.path as path
+import numpy as np
 
 # VR detector 
 # Arm movement
@@ -15,8 +16,8 @@ WRIST_HOME_STATE = {
 OCULUS_NUM_KEYPOINTS = 24
 #VR_THUMB_BOUND_VERTICES = 8
 VR_THUMB_BOUND_VERTICES = 4
-GRIPPER_OPEN=0
-GRIPPER_CLOSE=1
+GRIPPER_OPEN=1 #0
+GRIPPER_CLOSE=0 #1
 
 OCULUS_JOINTS = {
     'metacarpals': [2, 6, 9, 12, 15],
@@ -93,7 +94,7 @@ XELA_PLOT_SAVE_PATH = path.join(CALIBRATION_FILES_PATH, 'xela_plot.png')
 
 
 # Data recording parameters - Images are recorded at CAM_FPS rate
-IMAGE_RECORD_RESOLUTION = (1280, 720) 
+IMAGE_RECORD_RESOLUTION = (640, 480) #(1280, 720) 
 IMAGE_RECORD_RESOLUTION_SIM = (480, 480)
 DEPTH_RECORD_FPS = 30
 ALLEGRO_SAMPLE_OFFSET = 10 # For sampling states
@@ -101,7 +102,8 @@ SAMPLE_WRITER_FPS = 5
 
 # Deployment
 DEPLOY_REACH_THRESHOLD = 0.35
-DEPLOY_FREQ = 3 
+DEPLOY_FREQ = 10 #90 #60 #3 
+POLICY_FREQ = 20
 
 #RESOLUTION SPECIFIC parameters
 
@@ -127,3 +129,28 @@ ROBOT_HOME_POSE_AA = [206.0, -0.0, 475, 3.142, 0.0, 0.0]
 ROBOT_HOME_JS = [0.072358, -0.95536, -0.040176,
                  0.661511, -0.032836, 1.616466, 0.047656]
 
+############################# Stick Teleop #########################################
+# VR_TCP_ADDRESS = "tcp://10.19.205.42:5555"
+VR_TCP_HOST = "10.19.157.172"
+VR_TCP_PORT = 5555
+VR_CONTROLLER_TOPIC = b"oculus_controller"
+
+H_R_V = np.array( # this is for vention table 230 arm
+    [[1, 0, 0, 0],
+     [0, 0, -1, 0],
+     [0, -1, 0, 0],
+     [0, 0, 0, 1]]
+)
+H_R_V_star = np.array( # this is for vention table 230 arm
+[[1,0,0,0],
+ [0,0,1,0],
+ [0,1,0,0],
+ [0,0,0,1]]
+)
+
+# Robot workspace position limits.
+x_min, x_max = 206, 550
+y_min, y_max = -365, 260
+z_min, z_max = 100, 550    #232, 550
+ROBOT_WORKSPACE = np.array([[x_min, y_min, z_min], [x_max, y_max, z_max]])
+ROBOT_SERVO_MODE_STEP_LIMITS = np.array([-2, 2])
