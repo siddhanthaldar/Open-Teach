@@ -10,13 +10,13 @@ import shutil
 import h5py
 from pathlib import Path
 
-FOLDER_NAME = "2024.04.17"
+FOLDER_NAME = "2024.04.19"
 DATA_PATH = Path(f"/mnt/robotlab/siddhant/projects/scaling_polytask//extracted_data/{FOLDER_NAME}")
 SAVE_PATH = Path("/mnt/robotlab/siddhant/projects/scaling_polytask//processed_data")
 num_demos = None
 cam_indices = [1, 2, 3, 4, 51, 52]
 states_file_name = "states"
-task_names = ["lift_up_lid", "open_oven", "pick_bowl_from_rack"]
+task_names = ["pick_blue_mug", "pick_orange_mug"]
 
 for TASK_NAME in task_names:
     print(f"#################### Processing task {TASK_NAME} ####################")
@@ -91,7 +91,7 @@ for TASK_NAME in task_names:
             for k in range(len(static_timestamps)-1):
                 start_idx = sum(cam_timestamps < state_timestamps[static_timestamps[k][1]])
                 end_idx = sum(cam_timestamps < state_timestamps[static_timestamps[k+1][0]])
-                valid_indices.extend([i for i in range(start_idx, end_idx+1)])
+                valid_indices.extend([i for i in range(start_idx, end_idx)])
             cam_timestamps = cam_timestamps[valid_indices]
             
             # if no valid timestamps, skip
