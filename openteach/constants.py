@@ -91,7 +91,7 @@ SAMPLE_WRITER_FPS = 5
 
 # Deployment
 DEPLOY_REACH_THRESHOLD = 0.35
-DEPLOY_FREQ = 15  # 60 #3
+DEPLOY_FREQ = 45 #15  # 60 #3
 POLICY_FREQ = 10
 
 # RESOLUTION SPECIFIC parameters
@@ -131,8 +131,8 @@ H_R_V_star = np.array(  # this is for vention table 230 arm
 )
 
 # Robot workspace position limits.
-x_min, x_max = 206, 550
+x_min, x_max = 140, 550 #206, 550
 y_min, y_max = -365, 260
-z_min, z_max = 100, 550  # 232, 550
+z_min, z_max = 100, 590 #550  # 232, 550
 ROBOT_WORKSPACE = np.array([[x_min, y_min, z_min], [x_max, y_max, z_max]])
 ROBOT_SERVO_MODE_STEP_LIMITS = np.array([-2, 2])
