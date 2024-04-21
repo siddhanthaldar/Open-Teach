@@ -34,6 +34,8 @@ class RealsenseCameras(ProcessInstantiator):
         self._init_camera_processes()
 
     def _start_component(self, cam_idx, cam_serial_num):
+        is_depth_activated = self.configs.robot_cam_depth_activated[cam_idx-1][cam_idx]
+        print(f"Index:{cam_idx}", is_depth_activated)
         component = RealsenseCamera(
             stream_configs = dict(
                 host = self.configs.host_address,
@@ -42,7 +44,8 @@ class RealsenseCameras(ProcessInstantiator):
             cam_serial_num = cam_serial_num, #self.configs.robot_cam_serial_numbers[cam_idx],
             cam_id = cam_idx + 1,
             cam_configs = self.configs.cam_configs,
-            stream_oculus = True if self.configs.oculus_cam == cam_idx else False
+            stream_oculus = True if self.configs.oculus_cam == cam_idx else False,
+            depth = is_depth_activated 
         )
         component.stream()
 
