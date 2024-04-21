@@ -8,7 +8,7 @@ from sentence_transformers import SentenceTransformer
 
 PROCESSED_DATA_PATH = Path("/mnt/robotlab/siddhant/projects/scaling_polytask/processed_data")
 SAVE_DATA_PATH = Path("/mnt/robotlab/siddhant/projects/scaling_polytask/processed_data_pkl")
-task_names = ["pick_blue_mug", "pick_orange_mug"]
+task_names = ["pick_coffee_bag", "pick_corn_starch_box"]
 camera_indices = [1,2,3,4,51,52]
 img_size = (128, 128)
 
