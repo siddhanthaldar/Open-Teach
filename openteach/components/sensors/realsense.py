@@ -54,6 +54,7 @@ class RealsenseCamera(Component):
             self.cam_configs.fps
         )
         if self._depth:
+            print('Enabling depth stream')
             config.enable_stream(
                 rs.stream.depth, 
                 self.cam_configs.width, 
@@ -66,10 +67,10 @@ class RealsenseCamera(Component):
         cfg = self.pipeline.start(config)
         device = cfg.get_device()
 
-        if self._depth:
-            # Setting the depth mode to high accuracy mode
-            depth_sensor = device.first_depth_sensor()
-            depth_sensor.set_option(rs.option.visual_preset, self.cam_configs.processing_preset)
+        # if self._depth:
+        #     # Setting the depth mode to high accuracy mode
+        #     depth_sensor = device.first_depth_sensor()
+        #     depth_sensor.set_option(rs.option.visual_preset, self.cam_configs.processing_preset)
         
         self.realsense = self.pipeline
 

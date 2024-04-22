@@ -6,15 +6,15 @@ defaults:
 
 robot_cam_serial_numbers:
   - 1: '239122072217'
-  # - 2: '023322062082' # this is actually 2
-  # - 3: '233522071078' # this is actually 3
-  # - 4: '141722076049'
+  - 2: '023322062082' # this is actually 2
+  - 3: '233522071078' # this is actually 3
+  - 4: '141722076049'
 
 robot_cam_depth_activated:
   - 1: True
-  # - 2: False 
-  # - 3: False 
-  # - 4: False 
+  - 2: True 
+  - 3: True 
+  - 4: True 
   
 cam_configs:
   width: 640 
@@ -24,7 +24,7 @@ cam_configs:
   rotation_angle: 0
 
 oculus_cam: 0 # First camera
-num_cams: 3
+num_cams: 1
 
 hydra:  
   output_subdir: null  

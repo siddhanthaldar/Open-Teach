@@ -26,6 +26,7 @@ urdf/*
 # *.npy
 *.h5
 
+*.avi
 *.mp4
 
 # Logs
