@@ -6,7 +6,7 @@ from xarm import XArmAPI
 from enum import Enum
 import math
 
-from openteach.constants import SCALE_FACTOR
+from openteach.constants import SCALE_FACTOR, DEPLOY_FREQ, POLICY_FREQ
 from scipy.spatial.transform import Rotation as R
 from openteach.constants import *
 
@@ -64,7 +64,12 @@ class DexArmControl():
         #self._init_franka_arm_control(record)
         self.robot =Robot(ip, is_radian=True) 
 
-        self.desired_cartesian_pose = None
+        # self.desired_cartesian_pose = None
+        # self.desired_cartesian_pose = self.get_arm_cartesian_coords()
+        # self.desired_gripper_pose = 800.0
+        self.idx = 0
+        self.trajectory = None
+        self.num_time_steps = DEPLOY_FREQ // POLICY_FREQ
 
     # Controller initializers
     def _init_xarm_control(self):
@@ -121,17 +126,13 @@ class DexArmControl():
     def move_arm_cartesian(self, cartesian_pos, duration=3):
         self.robot.set_servo_cartesian_aa(
                     cartesian_pos, wait=False, relative=False, mvacc=200, speed=50)
-
-    def set_desired_cartesian_pose(self, cartesian_pose):
-        # abs action
-        # self.desired_cartesian_pose = cartesian_pose
-        # relative action
+        
+    def set_desired_pose(self, cartesian_pose, gripper_pose):
+        # desired cartesian pose
+        # pos
         curr_cartesian_pose = self.get_arm_cartesian_coords()
-        if self.desired_cartesian_pose is not None:
-            print("Previous desired pose: ", self.desired_cartesian_pose)
-            print("Current pose: ", curr_cartesian_pose)
         pos = curr_cartesian_pose[:3] + cartesian_pose[:3]
-
+        # ori
         ori = curr_cartesian_pose[3:]
         sin_ori = np.sin(ori)
         cos_ori = np.cos(ori)
@@ -139,15 +140,60 @@ class DexArmControl():
         ori = ori + cartesian_pose[3:]
         sin_ori, cos_ori = ori[:3], ori[3:]
         ori = np.arctan2(sin_ori, cos_ori)
+        # desired
+        desired_cartesian_pose = np.concatenate([pos, ori])
 
-        self.desired_cartesian_pose = np.concatenate([pos, ori])
+        # desired gripper pose
+        self.desired_gripper_pose = gripper_pose
+        # self.desired_pose = np.concatenate([self.desired_cartesian_pose, [gripper_pose]])
+
+        # Get minjerk trajectory
+        self.trajectory = self.min_jerk_trajectory_generator(curr_cartesian_pose, desired_cartesian_pose, self.num_time_steps)
+        self.idx = 0
+
+        # # Linear interpolation between current and desired cartesian pose
+        # self.fraction_move = (desired_cartesian_pose - curr_cartesian_pose) / self.num_steps
+
+        # for _ in range(self.num_steps):
+        #     self.continue_control()
+
+    def min_jerk_trajectory_generator(self, current, target, num_steps):
+        # Generate a minimum jerk trajectory between current and target
+        # Reference: https://en.wikipedia.org/wiki/Minimum_jerk_trajectory
+        # The trajectory is generated in cartesian and gripper space
+        trajectory = []
+        for time in range(1, num_steps+1):
+            t = time / num_steps
+            trajectory.append(current + (target - current) * (10 * t ** 3 - 15 * t ** 4 + 6 * t ** 5))
+        return trajectory
+
+
+    # def set_desired_cartesian_pose(self, cartesian_pose):
+    #     # abs action
+    #     # self.desired_cartesian_pose = cartesian_pose
+    #     # relative action
+    #     curr_cartesian_pose = self.get_arm_cartesian_coords()
+    #     # if self.desired_cartesian_pose is not None:
+    #     #     print("Previous desired pose: ", self.desired_cartesian_pose)
+    #     #     print("Current pose: ", curr_cartesian_pose)
+    #     pos = curr_cartesian_pose[:3] + cartesian_pose[:3]
+
+    #     ori = curr_cartesian_pose[3:]
+    #     sin_ori = np.sin(ori)
+    #     cos_ori = np.cos(ori)
+    #     ori = np.concatenate([sin_ori, cos_ori])
+    #     ori = ori + cartesian_pose[3:]
+    #     sin_ori, cos_ori = ori[:3], ori[3:]
+    #     ori = np.arctan2(sin_ori, cos_ori)
+
+    #     self.desired_cartesian_pose = np.concatenate([pos, ori])
 
     def arm_control(self, cartesian_pose):
-        # if self.robot.has_error:
-        #     self.robot.clear()
-        #     # self.robot.set_mode_and_state(1)
-        #     # self.robot.set_mode_and_state(RobotControlMode.CARTESIAN_CONTROL, 0)
-        #     self.robot.set_mode_and_state(RobotControlMode.SERVO_CONTROL, 0)
+        if self.robot.has_error:
+            self.robot.clear()
+            # self.robot.set_mode_and_state(1)
+            # self.robot.set_mode_and_state(RobotControlMode.CARTESIAN_CONTROL, 0)
+            self.robot.set_mode_and_state(RobotControlMode.SERVO_CONTROL, 0)
         self.move_arm_cartesian(cartesian_pose)
         # self.robot.set_servo_cartesian_aa(
         #             cartesian_pose, wait=False, relative=False, mvacc=200, speed=50)
@@ -155,15 +201,15 @@ class DexArmControl():
         #             cartesian_pose, wait=False, relative=True)
     
     def continue_control(self):
-        if self.desired_cartesian_pose is None:
+        if self.trajectory is None or self.idx >= self.num_time_steps:
             return
                 
-        curr_cartesian_pose = self.get_arm_cartesian_coords()
+        # curr_cartesian_pose = self.get_arm_cartesian_coords()
 
-        pos = curr_cartesian_pose[:3]
-        delta = self.desired_cartesian_pose[:3] - pos
-        delta = np.clip(delta, -0.5, 0.5)
-        pos = curr_cartesian_pose[:3] + delta
+        # pos = curr_cartesian_pose[:3]
+        # delta = self.desired_cartesian_pose[:3] - pos
+        # delta = np.clip(delta, -0.5, 0.5)
+        # pos = curr_cartesian_pose[:3] + delta
 
         # ori = curr_cartesian_pose[3:]
         # des_ori = self.desired_cartesian_pose[3:]
@@ -184,9 +230,13 @@ class DexArmControl():
         # next_cartesian_pose = np.concatenate([pos, ori])
 
         # import ipdb; ipdb.set_trace()
-        next_cartesian_pose = np.concatenate([pos, self.desired_cartesian_pose[3:]])
-        self.arm_control(next_cartesian_pose)
-
+        # next_cartesian_pose = np.concatenate([pos, self.desired_cartesian_pose[3:]])
+        # next_cartesian_pose = curr_cartesian_pose + self.fraction_move
+        # self.arm_control(next_cartesian_pose)
+        self.arm_control(self.trajectory[self.idx])
+        if self.idx >= 0.8 * self.num_time_steps:
+            self.set_gripper_status(self.desired_gripper_pose)
+        self.idx += 1
         # self.robot.continue_move()
         
     def get_arm_joint_state(self):

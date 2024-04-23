@@ -157,7 +157,7 @@ class DexArmControl():
 
         pos = curr_cartesian_pose[:3]
         delta = self.desired_cartesian_pose[:3] - pos
-        delta = np.clip(delta, -2, 2)
+        delta = np.clip(delta, -0.5, 0.5) #-2, 2)
         pos = curr_cartesian_pose[:3] + delta
         next_cartesian_pose = np.concatenate([pos, self.desired_cartesian_pose[3:]])
         self.arm_control(next_cartesian_pose)

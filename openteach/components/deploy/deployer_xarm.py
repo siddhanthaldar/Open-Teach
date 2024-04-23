@@ -66,23 +66,25 @@ class DeployServer(Component):
                         # else:
                         #     self._robots[robot].set_gripper_state(0)
                         
-                        # compute the cartesian coords given relative coords
+                        # # compute the cartesian coords given relative coords
                         # current_pos = self._robots[robot].get_cartesian_state()['cartesian_position']
                         # cartesian_coords = np.array(current_pos) + np.array(cartesian_coords)
                         # delta = cartesian_coords
                         # cartesian_coords = self.cart_pose
                         # cartesian_coords[:3] += delta[:3]
 
-                        # cartesian
-                        # self._robots[robot].arm_control(cartesian_coords)
-                        self._robots[robot].set_desired_cartesian_pose(cartesian_coords)
-                        self._robots[robot].continue_control()
+                        # # # cartesian
+                        # # # self._robots[robot].arm_control(cartesian_coords)
+                        # self._robots[robot].set_desired_cartesian_pose(cartesian_coords)
+                        # self._robots[robot].continue_control()
 
-                        # gripper
-                        if gripper_action > 0.5: #400: # 0.5:
-                            self._robots[robot].set_gripper_state(800)
-                        else:
-                            self._robots[robot].set_gripper_state(0)
+                        # # gripper
+                        # if gripper_action > 0.5: #400: # 0.5:
+                        #     self._robots[robot].set_gripper_state(800)
+                        # else:
+                        #     self._robots[robot].set_gripper_state(0)
+                        
+                        self._robots[robot].set_desired_pose(cartesian_coords, 800 if gripper_action > 0.5 else 0)
 
 
                     concat_action = np.concatenate([robot_action_dict[robot]['cartesian'], robot_action_dict[robot]['gripper']])       
@@ -208,7 +210,7 @@ class DeployServer(Component):
                     print('success: {}'.format(success))
                     # More accurate sleep
                     
-                    self.timer.end_loop()
+                    # self.timer.end_loop()
 
                     if success:
                         print('Before sending the states')
@@ -217,9 +219,11 @@ class DeployServer(Component):
                         print('Applied robot action.')
                     else:
                         self.deployment_socket.send("Command failed!")
+                    
+                # else:
+                self._continue_robot_action()
                 
-                else:
-                    self._continue_robot_action()
+                self.timer.end_loop()
             # except:
             #     print('Illegal values passed. Terminating session.')
             #     break
@@ -227,3 +231,57 @@ class DeployServer(Component):
         # self.visualizer_process.join()
         print('Closing robot deployer component.')
         self.deployment_socket.close()
+
+    # def stream(self):
+    #     self.notify_component_start('robot deployer')
+    #     # self.visualizer_process.start()
+    #     while True:
+    #         # try:
+    #             # print('\nListening')
+    #             self.timer.start_loop()
+
+    #             if self.timer.check_time(POLICY_FREQ):
+    #                 # robot_action = pickle.loads(self.deployment_socket.recv())
+    #                 print('Waiting for robot action.')
+    #                 robot_action = self.deployment_socket.recv()
+
+    #                 if robot_action == b'get_state':
+    #                     print('Requested for robot state information.')
+    #                     self._send_robot_state()
+    #                     continue
+
+    #                 if robot_action == b'get_sensor_state':
+    #                     print('Requested for sensor information.')
+    #                     self._send_sensor_state()
+    #                     continue
+
+    #                 if robot_action == b'reset':
+    #                     print('Resetting the robot.')
+    #                     self._reset()
+    #                     continue
+
+    #                 robot_action = pickle.loads(robot_action)
+    #                 print("Received robot action: {}".format(robot_action))
+    #                 success = self._perform_robot_action(robot_action)
+    #                 print('success: {}'.format(success))
+    #                 # More accurate sleep
+                    
+    #                 self.timer.end_loop()
+
+    #                 if success:
+    #                     print('Before sending the states')
+    #                     # self._send_both_state()
+    #                     self._send_robot_state()
+    #                     print('Applied robot action.')
+    #                 else:
+    #                     self.deployment_socket.send("Command failed!")
+                
+    #             else:
+    #                 self._continue_robot_action()
+    #         # except:
+    #         #     print('Illegal values passed. Terminating session.')
+    #         #     break
+
+    #     # self.visualizer_process.join()
+    #     print('Closing robot deployer component.')
+    #     self.deployment_socket.close()
