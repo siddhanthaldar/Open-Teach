@@ -27,7 +27,7 @@ class Robot(XArmAPI):
         self.clean_warn()
         # self.motion_enable(enable=False)
         self.motion_enable(enable=True)
-        # self.set_gripper_enable(True)
+        self.set_gripper_enable(True)
 
     def set_mode_and_state(self, mode: RobotControlMode, state: int = 0):
         self.set_mode(mode.value)
@@ -127,11 +127,7 @@ class DexArmControl():
         # self.desired_cartesian_pose = cartesian_pose
         # relative action
         curr_cartesian_pose = self.get_arm_cartesian_coords()
-        if self.desired_cartesian_pose is not None:
-            print("Previous desired pose: ", self.desired_cartesian_pose)
-            print("Current pose: ", curr_cartesian_pose)
         pos = curr_cartesian_pose[:3] + cartesian_pose[:3]
-
         ori = curr_cartesian_pose[3:]
         sin_ori = np.sin(ori)
         cos_ori = np.cos(ori)
@@ -139,15 +135,14 @@ class DexArmControl():
         ori = ori + cartesian_pose[3:]
         sin_ori, cos_ori = ori[:3], ori[3:]
         ori = np.arctan2(sin_ori, cos_ori)
-
         self.desired_cartesian_pose = np.concatenate([pos, ori])
 
     def arm_control(self, cartesian_pose):
-        # if self.robot.has_error:
-        #     self.robot.clear()
-        #     # self.robot.set_mode_and_state(1)
-        #     # self.robot.set_mode_and_state(RobotControlMode.CARTESIAN_CONTROL, 0)
-        #     self.robot.set_mode_and_state(RobotControlMode.SERVO_CONTROL, 0)
+        if self.robot.has_error:
+            self.robot.clear()
+            # self.robot.set_mode_and_state(1)
+            # self.robot.set_mode_and_state(RobotControlMode.CARTESIAN_CONTROL, 0)
+            self.robot.set_mode_and_state(RobotControlMode.SERVO_CONTROL, 0)
         self.move_arm_cartesian(cartesian_pose)
         # self.robot.set_servo_cartesian_aa(
         #             cartesian_pose, wait=False, relative=False, mvacc=200, speed=50)
@@ -162,28 +157,8 @@ class DexArmControl():
 
         pos = curr_cartesian_pose[:3]
         delta = self.desired_cartesian_pose[:3] - pos
-        delta = np.clip(delta, -0.5, 0.5)
+        delta = np.clip(delta, -2, 2)
         pos = curr_cartesian_pose[:3] + delta
-
-        # ori = curr_cartesian_pose[3:]
-        # des_ori = self.desired_cartesian_pose[3:]
-        # sin_ori, cos_ori = np.sin(ori), np.cos(ori)
-        # des_sin_ori, des_cos_ori = np.sin(des_ori), np.cos(des_ori)
-        # delta_sin_ori = des_sin_ori - sin_ori
-        # delta_cos_ori = des_cos_ori - cos_ori
-        # delta_sin_ori = np.clip(delta_sin_ori, -0.05, 0.05)
-        # delta_cos_ori = np.clip(delta_cos_ori, -0.05, 0.05)
-        # sin_ori = sin_ori + delta_sin_ori
-        # cos_ori = cos_ori + delta_cos_ori
-        # ori = np.arctan2(sin_ori, cos_ori)
-
-        # # delta_ori = self.desired_cartesian_pose[3:] - ori
-        # # delta_ori = np.clip(delta_ori, -0.1, 0.1)
-        # # ori = curr_cartesian_pose[3:] + delta_ori
-
-        # next_cartesian_pose = np.concatenate([pos, ori])
-
-        # import ipdb; ipdb.set_trace()
         next_cartesian_pose = np.concatenate([pos, self.desired_cartesian_pose[3:]])
         self.arm_control(next_cartesian_pose)
 

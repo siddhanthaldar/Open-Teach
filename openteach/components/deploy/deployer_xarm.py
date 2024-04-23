@@ -60,11 +60,11 @@ class DeployServer(Component):
                         gripper_action = robot_action_dict[robot]['gripper']
                         cartesian_coords = robot_action_dict[robot]['cartesian']
 
-                        # gripper
-                        if gripper_action > 0.5: #400: # 0.5:
-                            self._robots[robot].set_gripper_state(800)
-                        else:
-                            self._robots[robot].set_gripper_state(0)
+                        # # gripper
+                        # if gripper_action > 0.5: #400: # 0.5:
+                        #     self._robots[robot].set_gripper_state(800)
+                        # else:
+                        #     self._robots[robot].set_gripper_state(0)
                         
                         # compute the cartesian coords given relative coords
                         # current_pos = self._robots[robot].get_cartesian_state()['cartesian_position']
@@ -77,6 +77,13 @@ class DeployServer(Component):
                         # self._robots[robot].arm_control(cartesian_coords)
                         self._robots[robot].set_desired_cartesian_pose(cartesian_coords)
                         self._robots[robot].continue_control()
+
+                        # gripper
+                        if gripper_action > 0.5: #400: # 0.5:
+                            self._robots[robot].set_gripper_state(800)
+                        else:
+                            self._robots[robot].set_gripper_state(0)
+
 
                     concat_action = np.concatenate([robot_action_dict[robot]['cartesian'], robot_action_dict[robot]['gripper']])       
                     print('Applying action {} on robot: {}'.format(concat_action, robot))

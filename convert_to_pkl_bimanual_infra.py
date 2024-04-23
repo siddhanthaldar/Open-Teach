@@ -6,11 +6,16 @@ import cv2
 from pathlib import Path
 from sentence_transformers import SentenceTransformer
 
-PROCESSED_DATA_PATH = Path("/mnt/robotlab/siddhant/projects/scaling_polytask/processed_data")
-SAVE_DATA_PATH = Path("/mnt/robotlab/siddhant/projects/scaling_polytask/processed_data_pkl")
-task_names = ["pick_coffee_bag", "pick_corn_starch_box"]
+FOLDER_NAME = "2024.04.21"
+PROCESSED_DATA_PATH = Path(f"/mnt/robotlab/siddhant/projects/scaling_polytask/processed_data/{FOLDER_NAME}")
+SAVE_DATA_PATH = Path(f"/mnt/robotlab/siddhant/projects/scaling_polytask/processed_data_pkl/{FOLDER_NAME}")
+task_names = None #["pick_coffee_bag", "pick_starch_box", "pick_blue_mug"]
 camera_indices = [1,2,3,4,51,52]
 img_size = (128, 128)
+
+# if task_names is None, get all task names
+if task_names is None:
+    task_names = [x.name for x in PROCESSED_DATA_PATH.iterdir() if x.is_dir()]
 
 # Create the save path
 SAVE_DATA_PATH.mkdir(parents=True, exist_ok=True)
