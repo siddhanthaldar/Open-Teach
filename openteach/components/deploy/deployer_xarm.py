@@ -92,7 +92,8 @@ class DeployServer(Component):
                 robot_state = np.concatenate([
                     cartesian_state['position'],
                     cartesian_state['orientation'],
-                    gripper_state['position']
+                    # gripper_state['position']
+                    [1 if gripper_state['position'][0] > 400 else 0]
                 ])
                 self.cart_pose = robot_state[:6]
                 data[robot_name] = robot_state
@@ -155,6 +156,7 @@ class DeployServer(Component):
                     print("Received robot action: {}".format(robot_action))
                     success = self._perform_robot_action(robot_action)
                     print('success: {}'.format(success))
+                    # import ipdb; ipdb.set_trace()
 
                     if success:
                         print('Before sending the states')

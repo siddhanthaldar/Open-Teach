@@ -12,6 +12,7 @@ SAVE_DATA_PATH = Path(f"/mnt/robotlab/siddhant/projects/scaling_polytask/process
 task_names = None #["pick_coffee_bag", "pick_starch_box", "pick_blue_mug"]
 camera_indices = [1,2,3,4,51,52]
 img_size = (128, 128)
+NUM_DEMOS = None
 
 # if task_names is None, get all task names
 if task_names is None:
@@ -43,6 +44,12 @@ for TASK_NAME in task_names:
     dirs = [x for x in DATASET_PATH.iterdir() if x.is_dir()]
     for i, data_point in enumerate(dirs):
         print(f"Processing data point {i+1}/{len(dirs)}")
+
+        if NUM_DEMOS is not None:
+            if int(str(data_point).split("_")[-1]) >= NUM_DEMOS:
+                print(f"Skipping data point {data_point}")
+                continue
+
         observation = {}
         # images
         image_dir = data_point / "videos"

@@ -159,8 +159,10 @@ class DexArmControl():
             return
 
         self.arm_control(self.trajectory[self.idx])
-        if self.idx >= 0.8 * self.num_time_steps:
-            self.set_gripper_status(self.desired_gripper_pose)
+        # print(self.idx, self.num_time_steps)
+        # if self.idx >= 0.8 * self.num_time_steps:
+        # print("Setting gripper status", self.desired_gripper_pose)
+        self.set_gripper_status(self.desired_gripper_pose)
         self.idx += 1
         
     def get_arm_joint_state(self):
