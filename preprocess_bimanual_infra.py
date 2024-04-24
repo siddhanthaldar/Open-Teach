@@ -10,9 +10,9 @@ import shutil
 import h5py
 from pathlib import Path
 
-FOLDER_NAME = "2024.04.21"
+FOLDER_NAME = "2024.04.23"
 DATA_PATH = Path(f"/mnt/robotlab/siddhant/projects/scaling_polytask/extracted_data/{FOLDER_NAME}")
-SAVE_PATH = Path("/mnt/robotlab/siddhant/projects/scaling_polytask/processed_data/{FOLDER_NAME}")
+SAVE_PATH = Path("/mnt/robotlab/siddhant/projects/scaling_polytask/processed_data/")
 num_demos = None
 cam_indices = [1, 2, 3, 4, 51, 52]
 states_file_name = "states"
@@ -25,8 +25,13 @@ if task_names is None:
 for TASK_NAME in task_names:
     print(f"#################### Processing task {TASK_NAME} ####################")
 
-    # Make save directory
-    (SAVE_PATH / TASK_NAME).mkdir(parents=True, exist_ok=True)
+    # Check if previous demos from this task exist
+    if Path(f"{SAVE_PATH}/{TASK_NAME}").exists():
+        print(f"Previous demonstrations from task {TASK_NAME} exist. Appending new demonstrations to the existing ones.")
+        num_prev_demos = len([f for f in (SAVE_PATH / TASK_NAME).iterdir() if f.is_dir()])
+    else:
+        num_prev_demos = 0
+        (SAVE_PATH / TASK_NAME).mkdir(parents=True, exist_ok=True)
 
     # demo directories
     DEMO_DIRS = [f for f in (DATA_PATH / TASK_NAME).iterdir() if f.is_dir() and 'fail' not in f.name]
@@ -35,7 +40,8 @@ for TASK_NAME in task_names:
 
     for num, demo_dir in enumerate(DEMO_DIRS):
         print("Processing demonstration", demo_dir.name)
-        output_path = f"{SAVE_PATH}/{TASK_NAME}/demonstration_{num}/"
+
+        output_path = f"{SAVE_PATH}/{TASK_NAME}/demonstration_{num + num_prev_demos}/"
         Path(output_path).mkdir(parents=True, exist_ok=True)
         
         cam_avis = [f"{demo_dir}/cam_{i}_rgb_video.avi" for i in cam_indices]
