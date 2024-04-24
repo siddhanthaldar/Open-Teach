@@ -78,9 +78,6 @@ class XArm(RobotWrapper):
     def set_desired_pose(self, cartesian_coords, gripper_state):
         self._controller.set_desired_pose(cartesian_coords, gripper_state)
 
-    # def set_desired_cartesian_pose(self, cartesian_coords):
-    #     self._controller.set_desired_cartesian_pose(cartesian_coords)
-
     def continue_control(self):
         self._controller.continue_control()
 

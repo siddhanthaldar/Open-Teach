@@ -27,7 +27,6 @@ class Robot(XArmAPI):
         self.clean_warn()
         # self.motion_enable(enable=False)
         self.motion_enable(enable=True)
-        # self.set_gripper_enable(True)
 
     def set_mode_and_state(self, mode: RobotControlMode, state: int = 0):
         self.set_mode(mode.value)
@@ -75,23 +74,12 @@ class DexArmControl():
     def _init_xarm_control(self):
        
         self.robot.reset()
-        # self.gripper_pos = 800.0
         
         status, home_pose = self.robot.get_position_aa()
         assert status == 0, "Failed to get robot position"
         home_affine = self.robot_pose_aa_to_affine(home_pose)
         # Initialize timestamp; used to send messages to the robot at a fixed frequency.
         last_sent_msg_ts = time.time()
-
-        # Initialize the environment state action tuple.
-        
-    
-
-   
-
-    # Rostopic callback functions
-   
-    # State information functions
    
     def get_arm_pose(self):
         status, home_pose = self.robot.get_position_aa()
@@ -145,17 +133,10 @@ class DexArmControl():
 
         # desired gripper pose
         self.desired_gripper_pose = gripper_pose
-        # self.desired_pose = np.concatenate([self.desired_cartesian_pose, [gripper_pose]])
 
         # Get minjerk trajectory
         self.trajectory = self.min_jerk_trajectory_generator(curr_cartesian_pose, desired_cartesian_pose, self.num_time_steps)
         self.idx = 0
-
-        # # Linear interpolation between current and desired cartesian pose
-        # self.fraction_move = (desired_cartesian_pose - curr_cartesian_pose) / self.num_steps
-
-        # for _ in range(self.num_steps):
-        #     self.continue_control()
 
     def min_jerk_trajectory_generator(self, current, target, num_steps):
         # Generate a minimum jerk trajectory between current and target
@@ -167,77 +148,20 @@ class DexArmControl():
             trajectory.append(current + (target - current) * (10 * t ** 3 - 15 * t ** 4 + 6 * t ** 5))
         return trajectory
 
-
-    # def set_desired_cartesian_pose(self, cartesian_pose):
-    #     # abs action
-    #     # self.desired_cartesian_pose = cartesian_pose
-    #     # relative action
-    #     curr_cartesian_pose = self.get_arm_cartesian_coords()
-    #     # if self.desired_cartesian_pose is not None:
-    #     #     print("Previous desired pose: ", self.desired_cartesian_pose)
-    #     #     print("Current pose: ", curr_cartesian_pose)
-    #     pos = curr_cartesian_pose[:3] + cartesian_pose[:3]
-
-    #     ori = curr_cartesian_pose[3:]
-    #     sin_ori = np.sin(ori)
-    #     cos_ori = np.cos(ori)
-    #     ori = np.concatenate([sin_ori, cos_ori])
-    #     ori = ori + cartesian_pose[3:]
-    #     sin_ori, cos_ori = ori[:3], ori[3:]
-    #     ori = np.arctan2(sin_ori, cos_ori)
-
-    #     self.desired_cartesian_pose = np.concatenate([pos, ori])
-
     def arm_control(self, cartesian_pose):
         if self.robot.has_error:
             self.robot.clear()
-            # self.robot.set_mode_and_state(1)
-            # self.robot.set_mode_and_state(RobotControlMode.CARTESIAN_CONTROL, 0)
             self.robot.set_mode_and_state(RobotControlMode.SERVO_CONTROL, 0)
         self.move_arm_cartesian(cartesian_pose)
-        # self.robot.set_servo_cartesian_aa(
-        #             cartesian_pose, wait=False, relative=False, mvacc=200, speed=50)
-        # self.robot.set_servo_cartesian_aa(
-        #             cartesian_pose, wait=False, relative=True)
     
     def continue_control(self):
         if self.trajectory is None or self.idx >= self.num_time_steps:
             return
-                
-        # curr_cartesian_pose = self.get_arm_cartesian_coords()
 
-        # pos = curr_cartesian_pose[:3]
-        # delta = self.desired_cartesian_pose[:3] - pos
-        # delta = np.clip(delta, -0.5, 0.5)
-        # pos = curr_cartesian_pose[:3] + delta
-
-        # ori = curr_cartesian_pose[3:]
-        # des_ori = self.desired_cartesian_pose[3:]
-        # sin_ori, cos_ori = np.sin(ori), np.cos(ori)
-        # des_sin_ori, des_cos_ori = np.sin(des_ori), np.cos(des_ori)
-        # delta_sin_ori = des_sin_ori - sin_ori
-        # delta_cos_ori = des_cos_ori - cos_ori
-        # delta_sin_ori = np.clip(delta_sin_ori, -0.05, 0.05)
-        # delta_cos_ori = np.clip(delta_cos_ori, -0.05, 0.05)
-        # sin_ori = sin_ori + delta_sin_ori
-        # cos_ori = cos_ori + delta_cos_ori
-        # ori = np.arctan2(sin_ori, cos_ori)
-
-        # # delta_ori = self.desired_cartesian_pose[3:] - ori
-        # # delta_ori = np.clip(delta_ori, -0.1, 0.1)
-        # # ori = curr_cartesian_pose[3:] + delta_ori
-
-        # next_cartesian_pose = np.concatenate([pos, ori])
-
-        # import ipdb; ipdb.set_trace()
-        # next_cartesian_pose = np.concatenate([pos, self.desired_cartesian_pose[3:]])
-        # next_cartesian_pose = curr_cartesian_pose + self.fraction_move
-        # self.arm_control(next_cartesian_pose)
         self.arm_control(self.trajectory[self.idx])
         if self.idx >= 0.8 * self.num_time_steps:
             self.set_gripper_status(self.desired_gripper_pose)
         self.idx += 1
-        # self.robot.continue_move()
         
     def get_arm_joint_state(self):
         joint_positions =np.array(self.robot.get_servo_angle()[1])
@@ -268,14 +192,9 @@ class DexArmControl():
         self.robot.set_servo_angle(angle=arm_angles,is_radian=True)
         
     def home_robot(self):
-        self.home_arm() # For now we're using cartesian values
+        self.home_arm()
 
     def set_gripper_status(self, position):
-        # if position == 800:
-        #     self.gripper_pos = min(self.gripper_pos + 200, 800)
-        # elif position == 0:
-        #     self.gripper_pos = max(self.gripper_pos - 200, 0)
-        # position = self.gripper_pos
         self.robot.set_gripper_position(position)
 
     def robot_pose_aa_to_affine(self,pose_aa: np.ndarray) -> np.ndarray:
