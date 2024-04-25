@@ -16,14 +16,16 @@ class RobotControlMode(Enum):
 
 #Wrapper for XArm
 class Robot(XArmAPI):
-    def __init__(self, ip="192.168.86.230", is_radian=True):
+    def __init__(self, ip="192.168.86.230", is_radian=True, gripper_start_state=800.0):
         super(Robot, self).__init__(
             port=ip, is_radian=is_radian, is_tool_coord=False)
         self.set_gripper_enable(True)
         self.ip = ip
+        self.gripper_start_state = gripper_start_state
 
     def clear(self):
         self.clean_error()
+        self.clean_gripper_error()
         self.clean_warn()
         # self.motion_enable(enable=False)
         self.motion_enable(enable=True)
@@ -44,13 +46,13 @@ class Robot(XArmAPI):
         #             ROBOT_HOME_POSE_AA, wait=False, relative=False, mvacc=200, speed=50)
         assert status == 0, "Failed to set robot at home joint position"
         self.set_mode_and_state(RobotControlMode.SERVO_CONTROL, 0)
-        self.set_gripper_position(800.0, wait=True)
+        self.set_gripper_position(self.gripper_start_state, wait=True)
         time.sleep(0.1)
 
 
 
 class DexArmControl():
-    def __init__(self,ip,  record_type=None):
+    def __init__(self, ip, gripper_start_state=800.0, record_type=None):
 
         # if pub_port is set to None it will mean that
         # this will only be used for listening to franka and not commanding
@@ -61,7 +63,7 @@ class DexArmControl():
     
        
         #self._init_franka_arm_control(record)
-        self.robot =Robot(ip, is_radian=True) 
+        self.robot =Robot(ip, is_radian=True, gripper_start_state=gripper_start_state) 
 
         # self.desired_cartesian_pose = None
         # self.desired_cartesian_pose = self.get_arm_cartesian_coords()
@@ -149,12 +151,16 @@ class DexArmControl():
         return trajectory
 
     def arm_control(self, cartesian_pose):
-        if self.robot.has_error:
-            self.robot.clear()
-            self.robot.set_mode_and_state(RobotControlMode.SERVO_CONTROL, 0)
+        # while self.robot.has_error:
+        #     self.robot.clear()
+        #     self.robot.set_mode_and_state(RobotControlMode.SERVO_CONTROL, 0)
         self.move_arm_cartesian(cartesian_pose)
     
     def continue_control(self):
+        while self.robot.has_error:
+            self.robot.clear()
+            self.robot.set_mode_and_state(RobotControlMode.SERVO_CONTROL, 0)
+        
         if self.trajectory is None or self.idx >= self.num_time_steps:
             return
 

@@ -1,5 +1,7 @@
 robot_name: xarm
 
+gripper_start_state: open
+
 # Detector used to teleoperate the robot
 detector:
   _target_: openteach.components.detector.oculus_stick.OculusVRStickDetector
@@ -16,6 +18,7 @@ operators:
     cartesian_publisher_port: ${cartesian_publisher_port}
     joint_publisher_port: ${joint_publisher_port}
     cartesian_command_publisher_port: ${cartesian_command_publisher_port}
+    gripper_start_state: ${robot.gripper_start_state}
     
 # List of controller classes used
 controllers: 
@@ -23,6 +26,7 @@ controllers:
     _target_: openteach.robot.xarm_stick.XArm
     ip: ${right_xarm_ip}
     host_address: ${host_address}
+    gripper_start_state: ${robot.gripper_start_state}
     # record: False
 
 # Information to be recorded for the robot 

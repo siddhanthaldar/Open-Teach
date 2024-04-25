@@ -63,7 +63,8 @@ class XArmOperator(Operator):
         gripper_port=None,
         cartesian_publisher_port = None,
         joint_publisher_port = None,
-        cartesian_command_publisher_port = None):
+        cartesian_command_publisher_port = None,
+        gripper_start_state="open"):
 
         self.notify_component_start('xArm stick operator')
         
@@ -79,7 +80,11 @@ class XArmOperator(Operator):
         self._transformed_hand_keypoint_subscriber = None
 
         # Initalizing the robot controller
-        self._robot = XArm(ip=RIGHT_ARM_IP, host_address=host)
+        print(gripper_start_state)
+        self._robot = XArm(
+                        ip=RIGHT_ARM_IP, 
+                        host_address=host,
+                        gripper_start_state=GRIPPER_OPEN if gripper_start_state == "open" else GRIPPER_CLOSE)
         self.robot.reset()
 
         # Gripper and cartesian publisher
@@ -115,7 +120,7 @@ class XArmOperator(Operator):
         self.prev_gripper_flag=0
         self.prev_pause_flag=0
         self.pause_cnt=0
-        self.gripper_correct_state=GRIPPER_OPEN
+        self.gripper_correct_state=GRIPPER_OPEN if gripper_start_state == "open" else GRIPPER_CLOSE
         self.gripper_flag=1
         self.pause_flag=1
         self.gripper_cnt=0

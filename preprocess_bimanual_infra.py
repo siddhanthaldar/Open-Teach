@@ -10,7 +10,7 @@ import shutil
 import h5py
 from pathlib import Path
 
-FOLDER_NAME = "2024.04.24"
+FOLDER_NAME = "2024.04.25"
 DATA_PATH = Path(f"/mnt/robotlab/siddhant/projects/scaling_polytask/extracted_data/{FOLDER_NAME}")
 SAVE_PATH = Path(f"/mnt/robotlab/siddhant/projects/scaling_polytask/processed_data/{FOLDER_NAME}")
 num_demos = None

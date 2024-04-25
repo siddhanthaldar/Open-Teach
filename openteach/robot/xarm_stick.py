@@ -3,10 +3,13 @@ from .robot import RobotWrapper
 from openteach.utils.network import ZMQKeypointSubscriber
 import numpy as np
 import time
+from openteach.constants import GRIPPER_OPEN, GRIPPER_CLOSE
 
 class XArm(RobotWrapper):
-    def __init__(self, ip, host_address, record_type=None):
-        self._controller = DexArmControl(ip=ip,record_type=record_type)
+    def __init__(self, ip, host_address, gripper_start_state, record_type=None):
+        if type(gripper_start_state) is str:
+            gripper_start_state = GRIPPER_OPEN if gripper_start_state == 'open' else GRIPPER_CLOSE
+        self._controller = DexArmControl(ip=ip, gripper_start_state=gripper_start_state * 800.0, record_type=record_type)
         self.host_address = host_address
         self._data_frequency = 90
 
