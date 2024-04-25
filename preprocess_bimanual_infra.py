@@ -10,9 +10,9 @@ import shutil
 import h5py
 from pathlib import Path
 
-FOLDER_NAME = "2024.04.23"
+FOLDER_NAME = "2024.04.24"
 DATA_PATH = Path(f"/mnt/robotlab/siddhant/projects/scaling_polytask/extracted_data/{FOLDER_NAME}")
-SAVE_PATH = Path("/mnt/robotlab/siddhant/projects/scaling_polytask/processed_data/")
+SAVE_PATH = Path(f"/mnt/robotlab/siddhant/projects/scaling_polytask/processed_data/{FOLDER_NAME}")
 num_demos = None
 cam_indices = [1, 2, 3, 4, 51, 52]
 states_file_name = "states"
@@ -21,6 +21,9 @@ task_names = None # ["pick_coffee_bag", "pick_starch_box", "pick_blue_mug"]
 # if task names none
 if task_names is None:
     task_names = [f.name for f in DATA_PATH.iterdir() if f.is_dir()]
+
+# Create the save path
+SAVE_PATH.mkdir(parents=True, exist_ok=True)
 
 for TASK_NAME in task_names:
     print(f"#################### Processing task {TASK_NAME} ####################")

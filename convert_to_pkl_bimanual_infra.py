@@ -6,9 +6,9 @@ import cv2
 from pathlib import Path
 from sentence_transformers import SentenceTransformer
 
-# FOLDER_NAME = "2024.04.21"
-PROCESSED_DATA_PATH = Path(f"/mnt/robotlab/siddhant/projects/scaling_polytask/processed_data")
-SAVE_DATA_PATH = Path(f"/mnt/robotlab/siddhant/projects/scaling_polytask/processed_data_pkl")
+FOLDER_NAME = "2024.04.24"
+PROCESSED_DATA_PATH = Path(f"/mnt/robotlab/siddhant/projects/scaling_polytask/processed_data/{FOLDER_NAME}")
+SAVE_DATA_PATH = Path(f"/mnt/robotlab/siddhant/projects/scaling_polytask/processed_data_pkl/{FOLDER_NAME}")
 task_names = None #["pick_coffee_bag", "pick_starch_box", "pick_blue_mug"]
 camera_indices = [1,2,3,4,51,52]
 img_size = (128, 128)
