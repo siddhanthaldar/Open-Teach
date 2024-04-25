@@ -6,10 +6,10 @@ import cv2
 from pathlib import Path
 from sentence_transformers import SentenceTransformer
 
-FOLDER_NAME = "2024.04.24"
+FOLDER_NAME = "2024.04.25"
 PROCESSED_DATA_PATH = Path(f"/mnt/robotlab/siddhant/projects/scaling_polytask/processed_data/{FOLDER_NAME}")
 SAVE_DATA_PATH = Path(f"/mnt/robotlab/siddhant/projects/scaling_polytask/processed_data_pkl/{FOLDER_NAME}")
-task_names = None #["pick_coffee_bag", "pick_starch_box", "pick_blue_mug"]
+task_names = None #["pick_coffee_bag"]
 camera_indices = [1,2,3,4,51,52]
 img_size = (128, 128)
 NUM_DEMOS = None
@@ -68,6 +68,11 @@ for TASK_NAME in task_names:
                 ret, frame = cap.read()
                 if not ret:
                     break
+                if idx == 52:
+                    # crop the right side of the image for the gripper cam
+                    shape = frame.shape
+                    crop_percent = 0.2
+                    frame = frame[:, :int(shape[1] * (1 - crop_percent))]
                 frame = cv2.resize(frame, img_size)
                 frames.append(frame)
             observation[f"pixels{save_idx}"] = np.array(frames)
