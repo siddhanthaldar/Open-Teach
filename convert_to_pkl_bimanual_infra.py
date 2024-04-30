@@ -6,9 +6,9 @@ import cv2
 from pathlib import Path
 from sentence_transformers import SentenceTransformer
 
-FOLDER_NAME = "2024.04.25"
+FOLDER_NAME = "2024.04.29_higher_variation"
 PROCESSED_DATA_PATH = Path(f"/mnt/robotlab/siddhant/projects/scaling_polytask/processed_data/{FOLDER_NAME}")
-SAVE_DATA_PATH = Path(f"/mnt/robotlab/siddhant/projects/scaling_polytask/processed_data_pkl/{FOLDER_NAME}")
+SAVE_DATA_PATH = Path(f"/mnt/robotlab/siddhant/projects/scaling_polytask/processed_data_pkl_higher_variation/")
 task_names = None #["pick_coffee_bag"]
 camera_indices = [1,2,3,4,51,52]
 img_size = (128, 128)
@@ -25,20 +25,30 @@ SAVE_DATA_PATH.mkdir(parents=True, exist_ok=True)
 for TASK_NAME in task_names:
     DATASET_PATH = Path(f"{PROCESSED_DATA_PATH}/{TASK_NAME}")
 
-    # Get task name sentence
-    label_path = DATASET_PATH / "label.txt"
-    task_name = label_path.read_text().strip()
-    print(f"Task name: {task_name}")
-    lang_model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
-    task_emb = lang_model.encode(task_name)
+    if (SAVE_DATA_PATH / f'{TASK_NAME}.pkl').exists():
+        print(f"Data for {TASK_NAME} already exists. Appending to it...")
+        data = pkl.load(open(SAVE_DATA_PATH / f'{TASK_NAME}.pkl', "rb"))
+        observations = data['observations']
+        max_cartesian = data['max_cartesian']
+        min_cartesian = data['min_cartesian']
+        max_gripper = data['max_gripper']
+        min_gripper = data['min_gripper']
+        task_emb = data['task_emb']
+    else:
+        # Get task name sentence
+        label_path = DATASET_PATH / "label.txt"
+        task_name = label_path.read_text().strip()
+        print(f"Task name: {task_name}")
+        lang_model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
+        task_emb = lang_model.encode(task_name)
 
-    # Init storing variables
-    observations = []
+        # Init storing variables
+        observations = []
 
-    # Store max and min
-    max_cartesian, min_cartesian = None, None
-    # max_rel_cartesian, min_rel_cartesian = None, None
-    max_gripper, min_gripper = None, None
+        # Store max and min
+        max_cartesian, min_cartesian = None, None
+        # max_rel_cartesian, min_rel_cartesian = None, None
+        max_gripper, min_gripper = None, None
 
     # Load each data point and save in a list
     dirs = [x for x in DATASET_PATH.iterdir() if x.is_dir()]

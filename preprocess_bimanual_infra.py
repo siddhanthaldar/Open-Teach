@@ -10,13 +10,13 @@ import shutil
 import h5py
 from pathlib import Path
 
-FOLDER_NAME = "2024.04.25"
+FOLDER_NAME = "2024.04.29_higher_variation"
 DATA_PATH = Path(f"/mnt/robotlab/siddhant/projects/scaling_polytask/extracted_data/{FOLDER_NAME}")
 SAVE_PATH = Path(f"/mnt/robotlab/siddhant/projects/scaling_polytask/processed_data/{FOLDER_NAME}")
 num_demos = None
 cam_indices = [1, 2, 3, 4, 51, 52]
 states_file_name = "states"
-task_names = None # ["pick_coffee_bag", "pick_starch_box", "pick_blue_mug"]
+task_names = None #["pick_blue_plate", "place_orange_in_bowl"]
 
 # if task names none
 if task_names is None:
@@ -49,12 +49,16 @@ for TASK_NAME in task_names:
         
         cam_avis = [f"{demo_dir}/cam_{i}_rgb_video.avi" for i in cam_indices]
 
-        cartesian = h5py.File(f"{demo_dir}/xarm_cartesian_states.h5", 'r')
-        state_timestamps = cartesian['timestamps']
-        state_positions = cartesian['cartesian_positions']
+        try:
+            cartesian = h5py.File(f"{demo_dir}/xarm_cartesian_states.h5", 'r')
+            state_timestamps = cartesian['timestamps']
+            state_positions = cartesian['cartesian_positions']
 
-        gripper = h5py.File(f"{demo_dir}/xarm_gripper_states.h5", 'r')
-        gripper_positions = gripper['gripper_positions']
+            gripper = h5py.File(f"{demo_dir}/xarm_gripper_states.h5", 'r')
+            gripper_positions = gripper['gripper_positions']
+        except:
+            print("No cartesian or gripper states found. Skipping this demo.")
+            continue
 
         state_positions = np.array(state_positions)
         gripper_positions = np.array(gripper_positions)

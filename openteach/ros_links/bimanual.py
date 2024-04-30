@@ -166,7 +166,7 @@ class DexArmControl():
 
         self.arm_control(self.trajectory[self.idx])
         # print(self.idx, self.num_time_steps)
-        # if self.idx >= 0.8 * self.num_time_steps:
+        # if self.idx >= 0.5 * self.num_time_steps:
         # print("Setting gripper status", self.desired_gripper_pose)
         self.set_gripper_status(self.desired_gripper_pose)
         self.idx += 1
