@@ -4,13 +4,13 @@ from pandas import read_csv
 import pickle as pkl
 import cv2
 from pathlib import Path
-from scipy.spatial.transform import Rotation
+from scipy.spatial.transform import Rotation as R
 from sentence_transformers import SentenceTransformer
 
-FOLDER_NAME = "2024.05.01"
+FOLDER_NAME = "2024.04.23"
 PROCESSED_DATA_PATH = Path(f"/mnt/robotlab/siddhant/projects/scaling_polytask/processed_data/{FOLDER_NAME}")
-SAVE_DATA_PATH = Path(f"/mnt/robotlab/siddhant/projects/scaling_polytask/processed_data_pkl/")
-task_names = ["fridge_pick_yoghurt"]
+SAVE_DATA_PATH = Path(f"/mnt/robotlab/siddhant/projects/scaling_polytask/processed_data_pkl_aa/")
+task_names = None #["lift_pan_lid", "place_pan_lid"]
 camera_indices = [1,2,3,4,51,52]
 img_size = (128, 128)
 NUM_DEMOS = None
@@ -21,7 +21,6 @@ if task_names is None:
 
 # Create the save path
 SAVE_DATA_PATH.mkdir(parents=True, exist_ok=True)
-
 
 for TASK_NAME in task_names:
     DATASET_PATH = Path(f"{PROCESSED_DATA_PATH}/{TASK_NAME}")
@@ -94,32 +93,28 @@ for TASK_NAME in task_names:
         # Separate the pose into values instead of string
         cartesian_states = state['pose_aa'].values
         cartesian_states = np.array([np.array([float(x.strip()) for x in pose[1:-1].split(',')]) for pose in cartesian_states], dtype=np.float32)
-        # # Convert roll-pitch-yaw to sin-cos
-        # def wrap_angle(angles):
-        #     """
-        #     Ensure angle stays within [0, 2*pi) degrees range.
-        #     """
-        #     for idx in range(len(angles)):
-        #         for i in range(3):
-        #             while angles[idx][i] >= 2*np.pi:
-        #                 angles[idx][i] -= 2*np.pi
-        #             while angles[idx][i] < 0:
-        #                 angles[idx][i] += 2*np.pi
-        #     return angles
-        cartesian_pos = cartesian_states[:, :3]
-        cartesian_ori = cartesian_states[:, 3:]
-        cartesian_ori = Rotation.from_rotvec(cartesian_ori).as_euler('xyz')
-        # cartesian_ori = wrap_angle(cartesian_ori)
-        cartesian_ori = np.concatenate([np.sin(cartesian_ori), np.cos(cartesian_ori)], axis=1)
-        cartesian_states = np.concatenate([cartesian_pos, cartesian_ori], axis=1)
+        # # # Convert roll-pitch-yaw to sin-cos
+        # # def wrap_angle(angles):
+        # #     """
+        # #     Ensure angle stays within [0, 2*pi) degrees range.
+        # #     """
+        # #     for idx in range(len(angles)):
+        # #         for i in range(3):
+        # #             while angles[idx][i] >= 2*np.pi:
+        # #                 angles[idx][i] -= 2*np.pi
+        # #             while angles[idx][i] < 0:
+        # #                 angles[idx][i] += 2*np.pi
+        # #     return angles
+        # cartesian_pos = cartesian_states[:, :3]
+        # cartesian_ori = cartesian_states[:, 3:]
+        # cartesian_ori = Rotation.from_rotvec(cartesian_ori).as_euler('xyz')
+        # # cartesian_ori = wrap_angle(cartesian_ori)
+        # cartesian_ori = np.concatenate([np.sin(cartesian_ori), np.cos(cartesian_ori)], axis=1)
+        # cartesian_states = np.concatenate([cartesian_pos, cartesian_ori], axis=1)
         # rest
         gripper_states = state['gripper_state'].values.astype(np.float32)
         observation["cartesian_states"] = cartesian_states.astype(np.float32)
         observation["gripper_states"] = gripper_states.astype(np.float32)
-        # # Relative cartesian states
-        # relative_cartesian_states = np.diff(cartesian_states, axis=0)
-        # relative_cartesian_states = np.concatenate([relative_cartesian_states, np.zeros((1, 9))], axis=0)
-        # observation["relative_cartesian_states"] = relative_cartesian_states
         
         # update max and min
         if max_cartesian is None:
@@ -128,12 +123,6 @@ for TASK_NAME in task_names:
         else:
             max_cartesian = np.maximum(max_cartesian, np.max(cartesian_states, axis=0))
             min_cartesian = np.minimum(min_cartesian, np.min(cartesian_states, axis=0))
-        # if max_rel_cartesian is None:
-        #     max_rel_cartesian = np.max(relative_cartesian_states, axis=0)
-        #     min_rel_cartesian = np.min(relative_cartesian_states, axis=0)
-        # else:
-        #     max_rel_cartesian = np.maximum(max_rel_cartesian, np.max(relative_cartesian_states, axis=0))
-        #     min_rel_cartesian = np.minimum(min_rel_cartesian, np.min(relative_cartesian_states, axis=0))
         if max_gripper is None:
             max_gripper = np.max(gripper_states)
             min_gripper = np.min(gripper_states)

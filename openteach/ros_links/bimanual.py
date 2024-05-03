@@ -121,20 +121,27 @@ class DexArmControl():
         # desired cartesian pose
         # pos
         curr_cartesian_pose = self.get_arm_cartesian_coords()
-        pos = curr_cartesian_pose[:3] + cartesian_pose[:3]
-        # ori
-        ori = curr_cartesian_pose[3:]
-        sin_ori = np.sin(ori)
-        cos_ori = np.cos(ori)
-        ori = np.concatenate([sin_ori, cos_ori])
-        ori = ori + cartesian_pose[3:]
-        sin_ori, cos_ori = ori[:3], ori[3:]
-        ori = np.arctan2(sin_ori, cos_ori)
-        # desired
-        desired_cartesian_pose = np.concatenate([pos, ori])
+        # pos = curr_cartesian_pose[:3] + cartesian_pose[:3]
+        # # ori
+        # ori = curr_cartesian_pose[3:]
+        # ori = R.from_rotvec(ori).as_euler('xyz')
+        # sin_ori = np.sin(ori)
+        # cos_ori = np.cos(ori)
+        # ori = np.concatenate([sin_ori, cos_ori])
+        # ori = ori + cartesian_pose[3:]
+        # sin_ori, cos_ori = ori[:3], ori[3:]
+        # ori = np.arctan2(sin_ori, cos_ori)
+        # # convert to axis angle
+        # ori = R.from_euler('xyz', ori).as_rotvec()      
+        # # desired
+        # desired_cartesian_pose = np.concatenate([pos, ori])
+        desired_cartesian_pose = curr_cartesian_pose + cartesian_pose
 
         # desired gripper pose
-        self.desired_gripper_pose = gripper_pose
+        self.apply_gripper=False
+        if not hasattr(self, 'desired_gripper_pose') or gripper_pose != self.desired_gripper_pose:
+            self.desired_gripper_pose = gripper_pose
+            self.apply_gripper=True
 
         # Get minjerk trajectory
         self.trajectory = self.min_jerk_trajectory_generator(curr_cartesian_pose, desired_cartesian_pose, self.num_time_steps)
@@ -168,7 +175,9 @@ class DexArmControl():
         # print(self.idx, self.num_time_steps)
         # if self.idx >= 0.5 * self.num_time_steps:
         # print("Setting gripper status", self.desired_gripper_pose)
-        self.set_gripper_status(self.desired_gripper_pose)
+        if self.apply_gripper and self.idx == self.num_time_steps - 1:
+            self.set_gripper_status(self.desired_gripper_pose)
+            self.apply_gripper = False
         self.idx += 1
         
     def get_arm_joint_state(self):
@@ -180,12 +189,21 @@ class DexArmControl():
         return joint_state
         
     def get_cartesian_state(self):
-        status,current_pos=self.robot.get_position_aa() 
+        status,current_pos=self.robot.get_position_aa()
+
+        pos, ori = current_pos[:3], current_pos[3:]
+        ori = R.from_rotvec(ori).as_euler('xyz')
         cartesian_state = dict(
-            position = np.array(current_pos[0:3], dtype=np.float32).flatten(),
-            orientation = np.array(current_pos[3:], dtype=np.float32).flatten(),
+            position = np.array(pos, dtype=np.float32).flatten(),
+            orientation = np.array(ori, dtype=np.float32).flatten(),
             timestamp = time.time()
-        )
+        ) 
+
+        # cartesian_state = dict(
+        #     position = np.array(current_pos[0:3], dtype=np.float32).flatten(),
+        #     orientation = np.array(current_pos[3:], dtype=np.float32).flatten(),
+        #     timestamp = time.time()
+        # )
 
         return cartesian_state
 
@@ -203,7 +221,7 @@ class DexArmControl():
         self.home_arm()
 
     def set_gripper_status(self, position):
-        self.robot.set_gripper_position(position)
+        self.robot.set_gripper_position(position, wait=True)
 
     def robot_pose_aa_to_affine(self,pose_aa: np.ndarray) -> np.ndarray:
         """Converts a robot pose in axis-angle format to an affine matrix.
