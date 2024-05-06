@@ -7,10 +7,10 @@ from pathlib import Path
 from scipy.spatial.transform import Rotation
 from sentence_transformers import SentenceTransformer
 
-FOLDER_NAME = "2024.05.01"
+FOLDER_NAME = "2024.05.05"
 PROCESSED_DATA_PATH = Path(f"/mnt/robotlab/siddhant/projects/scaling_polytask/processed_data/{FOLDER_NAME}")
-SAVE_DATA_PATH = Path(f"/mnt/robotlab/siddhant/projects/scaling_polytask/processed_data_pkl/")
-task_names = ["fridge_pick_yoghurt"]
+SAVE_DATA_PATH = Path(f"/mnt/robotlab/siddhant/projects/scaling_polytask/processed_data_pkl_aa/")
+task_names = None #["fridge_pick_yoghurt"]
 camera_indices = [1,2,3,4,51,52]
 img_size = (128, 128)
 NUM_DEMOS = None
@@ -106,12 +106,12 @@ for TASK_NAME in task_names:
         #             while angles[idx][i] < 0:
         #                 angles[idx][i] += 2*np.pi
         #     return angles
-        cartesian_pos = cartesian_states[:, :3]
-        cartesian_ori = cartesian_states[:, 3:]
-        cartesian_ori = Rotation.from_rotvec(cartesian_ori).as_euler('xyz')
-        # cartesian_ori = wrap_angle(cartesian_ori)
-        cartesian_ori = np.concatenate([np.sin(cartesian_ori), np.cos(cartesian_ori)], axis=1)
-        cartesian_states = np.concatenate([cartesian_pos, cartesian_ori], axis=1)
+        # cartesian_pos = cartesian_states[:, :3]
+        # cartesian_ori = cartesian_states[:, 3:]
+        # cartesian_ori = Rotation.from_rotvec(cartesian_ori).as_euler('xyz')
+        # # cartesian_ori = wrap_angle(cartesian_ori)
+        # cartesian_ori = np.concatenate([np.sin(cartesian_ori), np.cos(cartesian_ori)], axis=1)
+        # cartesian_states = np.concatenate([cartesian_pos, cartesian_ori], axis=1)
         # rest
         gripper_states = state['gripper_state'].values.astype(np.float32)
         observation["cartesian_states"] = cartesian_states.astype(np.float32)

@@ -7,9 +7,9 @@ from pathlib import Path
 from scipy.spatial.transform import Rotation as R
 from sentence_transformers import SentenceTransformer
 
-FOLDER_NAME = "2024.04.23"
+FOLDER_NAME = "2024.05.05"
 PROCESSED_DATA_PATH = Path(f"/mnt/robotlab/siddhant/projects/scaling_polytask/processed_data/{FOLDER_NAME}")
-SAVE_DATA_PATH = Path(f"/mnt/robotlab/siddhant/projects/scaling_polytask/processed_data_pkl_aa/")
+SAVE_DATA_PATH = Path(f"/mnt/robotlab/siddhant/projects/scaling_polytask/processed_data_pkl_aa_new/")
 task_names = None #["lift_pan_lid", "place_pan_lid"]
 camera_indices = [1,2,3,4,51,52]
 img_size = (128, 128)

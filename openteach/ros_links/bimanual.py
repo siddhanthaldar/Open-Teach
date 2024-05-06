@@ -98,8 +98,29 @@ class DexArmControl():
     def get_arm_torque(self):
         raise ValueError('get_arm_torque() is being called - Arm Torques cannot be collected in Franka arms, this method should not be called')
 
+    # def make_orientation_sign_consistent(self, axis):
+    #     reference_axis = np.array([1, 1, 1])
+    #     if np.dot(axis, reference_axis) < 0:
+    #         axis = -axis
+    #     return axis
+
+    def make_orientation_sign_consistent(self, axis):
+        norm_last = np.linalg.norm(self.prev_ori)
+        norm_curr = np.linalg.norm(axis)
+        dot_product = np.dot(axis, self.prev_ori)
+        if abs(norm_last - norm_curr) < 0.2 and dot_product < 0:
+            axis = -axis
+        return axis
+
+
     def get_arm_cartesian_coords(self):
         status, home_pose = self.robot.get_position_aa()
+        home_pose = np.array(home_pose)
+        # if not hasattr(self, 'prev_ori'):
+        #     self.prev_ori = home_pose[3:6]
+        # else:
+        #     home_pose[3:6] = self.make_orientation_sign_consistent(home_pose[3:6])
+        #     self.prev_ori = home_pose[3:6]
         return home_pose
 
     def get_gripper_state(self):
@@ -135,7 +156,31 @@ class DexArmControl():
         # ori = R.from_euler('xyz', ori).as_rotvec()      
         # # desired
         # desired_cartesian_pose = np.concatenate([pos, ori])
-        desired_cartesian_pose = curr_cartesian_pose + cartesian_pose
+        # find current matrix
+        pos_curr = curr_cartesian_pose[:3]
+        ori_curr = curr_cartesian_pose[3:]
+        r_curr = R.from_rotvec(ori_curr).as_matrix()
+        matrix_curr = np.eye(4)
+        matrix_curr[:3, :3] = r_curr
+        matrix_curr[:3, 3] = pos_curr
+        # find transformation matrix
+        pos_delta = cartesian_pose[:3]
+        ori_delta = cartesian_pose[3:]
+        r_delta = R.from_rotvec(ori_delta).as_matrix()
+        matrix_delta = np.eye(4)
+        matrix_delta[:3, :3] = r_delta
+        matrix_delta[:3, 3] = pos_delta
+        # find desired matrix
+        matrix_desired = matrix_curr @ matrix_delta
+        # matrix_desired = matrix_delta @ matrix_curr
+        # pos_desired = matrix_desired[:3, 3]
+        pos_desired = pos_curr + pos_delta
+        r_desired = matrix_desired[:3, :3]
+        ori_desired = R.from_matrix(r_desired).as_rotvec()
+        desired_cartesian_pose = np.concatenate([pos_desired, ori_desired])
+        # print("current_cartesian_pose", curr_cartesian_pose)
+        # print("desired_cartesian_pose", desired_cartesian_pose)
+        # desired_cartesian_pose = curr_cartesian_pose + cartesian_pose
 
         # desired gripper pose
         self.apply_gripper=False
@@ -189,10 +234,11 @@ class DexArmControl():
         return joint_state
         
     def get_cartesian_state(self):
-        status,current_pos=self.robot.get_position_aa()
+        # status,current_pos=self.robot.get_position_aa()
+        current_pos = self.get_arm_cartesian_coords()
 
         pos, ori = current_pos[:3], current_pos[3:]
-        ori = R.from_rotvec(ori).as_euler('xyz')
+        # ori = R.from_rotvec(ori).as_euler('xyz')
         cartesian_state = dict(
             position = np.array(pos, dtype=np.float32).flatten(),
             orientation = np.array(ori, dtype=np.float32).flatten(),

@@ -10,13 +10,13 @@ import shutil
 import h5py
 from pathlib import Path
 
-FOLDER_NAME = "2024.05.01"
+FOLDER_NAME = "2024.05.05"
 DATA_PATH = Path(f"/mnt/robotlab/siddhant/projects/scaling_polytask/extracted_data/{FOLDER_NAME}")
 SAVE_PATH = Path(f"/mnt/robotlab/siddhant/projects/scaling_polytask/processed_data/{FOLDER_NAME}")
 num_demos = None
 cam_indices = [1, 2, 3, 4, 51, 52]
 states_file_name = "states"
-task_names = ["fridge_pick_yoghurt"]
+task_names = None #["put_coke_can_in_fridge"]
 
 # if task names none
 if task_names is None:
@@ -37,7 +37,7 @@ for TASK_NAME in task_names:
         (SAVE_PATH / TASK_NAME).mkdir(parents=True, exist_ok=True)
 
     # demo directories
-    DEMO_DIRS = [f for f in (DATA_PATH / TASK_NAME).iterdir() if f.is_dir() and 'fail' not in f.name]
+    DEMO_DIRS = [f for f in (DATA_PATH / TASK_NAME).iterdir() if f.is_dir() and 'fail' not in f.name and 'ignore' not in f.name]
     if num_demos is not None:
         DEMO_DIRS = DEMO_DIRS[:num_demos]
 
