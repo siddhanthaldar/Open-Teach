@@ -184,8 +184,31 @@ class DexArmControl():
 
         # desired gripper pose
         self.apply_gripper=False
-        if not hasattr(self, 'desired_gripper_pose') or gripper_pose != self.desired_gripper_pose:
-            self.desired_gripper_pose = gripper_pose
+        ############### variant 1
+        # if not hasattr(self, 'desired_gripper_pose'):
+        #     self.desired_gripper_pose = gripper_pose
+        #     self.gripper_change_count = 0
+        #     self.apply_gripper=True
+        # elif gripper_pose != self.desired_gripper_pose:
+        #         if self.gripper_change_count >=3:
+        #             self.desired_gripper_pose = gripper_pose
+        #             self.gripper_change_count = 0
+        #             self.apply_gripper=True
+        #         else:
+        #             self.gripper_change_count += 1
+        ############### variant 2
+        # if not hasattr(self, 'desired_gripper_pose') or gripper_pose != self.desired_gripper_pose:
+        #     self.desired_gripper_pose = gripper_pose
+        #     self.apply_gripper=True
+        ############### variant 3
+        if not hasattr(self, 'desired_gripper_pose'):
+            self.desired_gripper_pose = gripper_pose * 800
+            self.apply_gripper=True
+        elif self.desired_gripper_pose > 400 and gripper_pose < 0.5:
+            self.desired_gripper_pose = 0
+            self.apply_gripper=True
+        elif self.desired_gripper_pose < 400 and gripper_pose > 0.7:
+            self.desired_gripper_pose = 800
             self.apply_gripper=True
 
         # Get minjerk trajectory
