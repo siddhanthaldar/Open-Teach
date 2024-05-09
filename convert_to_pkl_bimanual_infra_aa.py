@@ -7,12 +7,16 @@ from pathlib import Path
 from scipy.spatial.transform import Rotation as R
 from sentence_transformers import SentenceTransformer
 
-FOLDER_NAMES = ["2024.04.23", "2024.04.24", "2024.04.25", "2024.04.26", "2024.04.29",
-                "2024.04.30", "2024.05.01", "2024.05.05", "2024.05.06"]
-for FOLDER_NAME in FOLDER_NAMES:
-    PROCESSED_DATA_PATH = Path(f"/mnt/robotlab/siddhant/projects/scaling_polytask/processed_data_joint_states/{FOLDER_NAME}")
-    SAVE_DATA_PATH = Path(f"/mnt/robotlab/siddhant/projects/scaling_polytask/processed_data_pkl_aa_joint_states/")
-    task_names = None #["lift_pan_lid", "place_pan_lid"]
+# FOLDER_NAMES = ["2024.04.23", "2024.04.24", "2024.04.25", "2024.04.26", "2024.04.29",
+#                 "2024.04.30", "2024.05.01", "2024.05.05", "2024.05.06"]
+FOLDER_NAMES = {
+    # "2024.04.23": ["pick_blue_plate", "pick_white_plate"],
+    "2024.04.24": ["pick_black_plate"],
+}
+for FOLDER_NAME, task_names in FOLDER_NAMES.items():
+    PROCESSED_DATA_PATH = Path(f"/mnt/robotlab/siddhant/projects/scaling_polytask/processed_data/{FOLDER_NAME}")
+    SAVE_DATA_PATH = Path(f"/mnt/robotlab/siddhant/projects/scaling_polytask/processed_data_pkl_aa_may8/")
+    # task_names = None #["lift_pan_lid", "place_pan_lid"]
     camera_indices = [1,2,3,4,51,52]
     img_size = (128, 128)
     NUM_DEMOS = None
@@ -33,8 +37,8 @@ for FOLDER_NAME in FOLDER_NAMES:
             observations = data['observations']
             max_cartesian = data['max_cartesian']
             min_cartesian = data['min_cartesian']
-            max_joint_states = data['max_joint_states']
-            min_joint_states = data['min_joint_states']
+            # max_joint_states = data['max_joint_states']
+            # min_joint_states = data['min_joint_states']
             max_gripper = data['max_gripper']
             min_gripper = data['min_gripper']
             task_emb = data['task_emb']
@@ -51,7 +55,7 @@ for FOLDER_NAME in FOLDER_NAMES:
 
             # Store max and min
             max_cartesian, min_cartesian = None, None
-            max_joint_states, min_joint_states = None, None
+            # max_joint_states, min_joint_states = None, None
             # max_rel_cartesian, min_rel_cartesian = None, None
             max_gripper, min_gripper = None, None
 
@@ -98,11 +102,11 @@ for FOLDER_NAME in FOLDER_NAMES:
             # Separate the pose into values instead of string
             cartesian_states = state['pose_aa'].values
             cartesian_states = np.array([np.array([float(x.strip()) for x in pose[1:-1].split(',')]) for pose in cartesian_states], dtype=np.float32)
-            joint_states = state['joint_states'].values
-            for i in range(1, len(joint_states)):
-                if joint_states[i] == '[]':
-                    joint_states[i] = joint_states[i-1]
-            joint_states = np.array([np.array([float(x.strip()) for x in joint_states[i][1:-1].split(',')]) for i in range(len(joint_states))], dtype=np.float32)
+            # joint_states = state['joint_states'].values
+            # for i in range(1, len(joint_states)):
+            #     if joint_states[i] == '[]':
+            #         joint_states[i] = joint_states[i-1]
+            # joint_states = np.array([np.array([float(x.strip()) for x in joint_states[i][1:-1].split(',')]) for i in range(len(joint_states))], dtype=np.float32)
             # for pose in cartesian_states:
             #     for x in pose[1:-1].split(','):
             #         print(x.strip())
@@ -128,7 +132,7 @@ for FOLDER_NAME in FOLDER_NAMES:
             # rest
             gripper_states = state['gripper_state'].values.astype(np.float32)
             observation["cartesian_states"] = cartesian_states.astype(np.float32)
-            observation["joint_states"] = joint_states.astype(np.float32)
+            # observation["joint_states"] = joint_states.astype(np.float32)
             observation["gripper_states"] = gripper_states.astype(np.float32)
             
             # update max and min
@@ -138,12 +142,12 @@ for FOLDER_NAME in FOLDER_NAMES:
             else:
                 max_cartesian = np.maximum(max_cartesian, np.max(cartesian_states, axis=0))
                 min_cartesian = np.minimum(min_cartesian, np.min(cartesian_states, axis=0))
-            if max_joint_states is None:
-                max_joint_states = np.max(joint_states, axis=0)
-                min_joint_states = np.min(joint_states, axis=0)
-            else:
-                max_joint_states = np.maximum(max_joint_states, np.max(joint_states, axis=0))
-                min_joint_states = np.minimum(min_joint_states, np.min(joint_states, axis=0))
+            # if max_joint_states is None:
+            #     max_joint_states = np.max(joint_states, axis=0)
+            #     min_joint_states = np.min(joint_states, axis=0)
+            # else:
+            #     max_joint_states = np.maximum(max_joint_states, np.max(joint_states, axis=0))
+            #     min_joint_states = np.minimum(min_joint_states, np.min(joint_states, axis=0))
             if max_gripper is None:
                 max_gripper = np.max(gripper_states)
                 min_gripper = np.min(gripper_states)
@@ -159,8 +163,8 @@ for FOLDER_NAME in FOLDER_NAMES:
             'observations': observations,
             'max_cartesian': max_cartesian,
             'min_cartesian': min_cartesian,
-            'max_joint_states': max_joint_states,
-            'min_joint_states': min_joint_states,
+            # 'max_joint_states': max_joint_states,
+            # 'min_joint_states': min_joint_states,
             'max_gripper': max_gripper,
             'min_gripper': min_gripper,
             'task_emb': task_emb

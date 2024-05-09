@@ -197,19 +197,19 @@ class DexArmControl():
         #         else:
         #             self.gripper_change_count += 1
         ############### variant 2
-        # if not hasattr(self, 'desired_gripper_pose') or gripper_pose != self.desired_gripper_pose:
-        #     self.desired_gripper_pose = gripper_pose
-        #     self.apply_gripper=True
+        if not hasattr(self, 'desired_gripper_pose') or gripper_pose != self.desired_gripper_pose:
+            self.desired_gripper_pose = gripper_pose
+            self.apply_gripper=True
         ############### variant 3
-        if not hasattr(self, 'desired_gripper_pose'):
-            self.desired_gripper_pose = gripper_pose * 800
-            self.apply_gripper=True
-        elif self.desired_gripper_pose > 400 and gripper_pose < 0.5:
-            self.desired_gripper_pose = 0
-            self.apply_gripper=True
-        elif self.desired_gripper_pose < 400 and gripper_pose > 0.7:
-            self.desired_gripper_pose = 800
-            self.apply_gripper=True
+        # if not hasattr(self, 'desired_gripper_pose'):
+        #     self.desired_gripper_pose = gripper_pose * 800
+        #     self.apply_gripper=True
+        # elif self.desired_gripper_pose > 400 and gripper_pose < 0.5:
+        #     self.desired_gripper_pose = 0
+        #     self.apply_gripper=True
+        # elif self.desired_gripper_pose < 400 and gripper_pose > 0.5: #7:
+        #     self.desired_gripper_pose = 800
+        #     self.apply_gripper=True
 
         # Get minjerk trajectory
         self.trajectory = self.min_jerk_trajectory_generator(curr_cartesian_pose, desired_cartesian_pose, self.num_time_steps)

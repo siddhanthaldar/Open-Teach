@@ -55,7 +55,7 @@ class XArm(RobotWrapper):
     
     def get_joint_position(self):
         return self._controller.get_arm_position()
-    
+
     def get_cartesian_position(self):
         return self._controller.get_arm_cartesian_coords()
 
