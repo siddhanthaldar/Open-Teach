@@ -10,9 +10,8 @@ from sentence_transformers import SentenceTransformer
 # FOLDER_NAMES = ["2024.04.23", "2024.04.24", "2024.04.25", "2024.04.26", "2024.04.29",
 #                 "2024.04.30", "2024.05.01", "2024.05.05", "2024.05.06"]
 FOLDER_NAMES = {
-    "2024.04.25": ["close_oven_door"],
-    # "2024.05.10": ["put_tomato_can_on_rack", "put_coke_can_on_rack"],
-    # "2024.05.11": None,
+    "2024.05.29": ["set_up_table"],
+    "2024.05.31": ["put_fruits_in_basket"],
 }
 for FOLDER_NAME, task_names in FOLDER_NAMES.items():
     PROCESSED_DATA_PATH = Path(f"/mnt/robotlab/siddhant/projects/scaling_polytask/processed_data/{FOLDER_NAME}")

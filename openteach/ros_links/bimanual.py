@@ -207,7 +207,7 @@ class DexArmControl():
         elif self.desired_gripper_pose > 400 and gripper_pose < 0.6: #0.5:
             self.desired_gripper_pose = 0
             self.apply_gripper=True
-        elif self.desired_gripper_pose < 400 and gripper_pose > 0.7:
+        elif self.desired_gripper_pose < 400 and gripper_pose > 0.5: #0.7:
             self.desired_gripper_pose = 800
             self.apply_gripper=True
 
