@@ -7,7 +7,7 @@ from multiprocessing import Process
 from openteach.components import Component
 from openteach.utils.network import create_response_socket
 from openteach.utils.timer import FrequencyTimer
-from openteach.constants import DEPLOY_FREQ, POLICY_FREQ #, VR_FREQ
+from openteach.constants import DEPLOY_FREQ, POLICY_FREQ
 
 class DeployServer(Component):
     def __init__(self, configs):
@@ -26,7 +26,6 @@ class DeployServer(Component):
         )
 
         self.timer = FrequencyTimer(DEPLOY_FREQ)
-        # self.timer = FrequencyTimer(POLICY_FREQ)
 
     def _init_robot_subscribers(self):
         robot_controllers = hydra.utils.instantiate(self.configs.robot.controllers)
@@ -59,8 +58,7 @@ class DeployServer(Component):
                         gripper_action = robot_action_dict[robot]['gripper']
                         cartesian_coords = robot_action_dict[robot]['cartesian']
 
-                        # self._robots[robot].set_desired_pose(cartesian_coords, 800 if gripper_action > 0.5 else 0)
-                        self._robots[robot].set_desired_pose(cartesian_coords, gripper_action) # variant 3
+                        self._robots[robot].set_desired_pose(cartesian_coords, gripper_action)
 
 
                     concat_action = np.concatenate([robot_action_dict[robot]['cartesian'], robot_action_dict[robot]['gripper']])       
@@ -89,13 +87,10 @@ class DeployServer(Component):
         for robot_name in self._robots.keys():
             if robot_name == 'xarm':
                 cartesian_state = self._robots[robot_name].get_cartesian_state()
-                # joint_state = self._robots[robot_name].get_joint_state()
                 gripper_state = self._robots[robot_name].get_gripper_state()
                 robot_state = np.concatenate([
                     cartesian_state['position'],
                     cartesian_state['orientation'],
-                    # joint_state['position'],
-                    # gripper_state['position']
                     [1 if gripper_state['position'][0] > 400 else 0]
                 ])
                 self.cart_pose = robot_state[:6]
@@ -159,11 +154,9 @@ class DeployServer(Component):
                     print("Received robot action: {}".format(robot_action))
                     success = self._perform_robot_action(robot_action)
                     print('success: {}'.format(success))
-                    # import ipdb; ipdb.set_trace()
 
                     if success:
                         print('Before sending the states')
-                        # self._send_both_state()
                         self._send_robot_state()
                         print('Applied robot action.')
                     else:

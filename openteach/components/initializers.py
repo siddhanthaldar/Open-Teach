@@ -39,7 +39,7 @@ class RealsenseCameras(ProcessInstantiator):
                 host = self.configs.host_address,
                 port = self.configs.cam_port_offset + cam_idx
             ),
-            cam_serial_num = cam_serial_num, #self.configs.robot_cam_serial_numbers[cam_idx],
+            cam_serial_num = cam_serial_num,
             cam_id = cam_idx + 1,
             cam_configs = self.configs.cam_configs,
             stream_oculus = True if self.configs.oculus_cam == cam_idx else False
@@ -47,7 +47,6 @@ class RealsenseCameras(ProcessInstantiator):
         component.stream()
 
     def _init_camera_processes(self):
-        # for cam_idx in range(len(self.configs.robot_cam_serial_numbers)):
         for camera in self.configs.robot_cam_serial_numbers:
             cam_idx = list(camera.keys())[0]
             cam_serial_num = camera[cam_idx]
@@ -69,7 +68,7 @@ class FishEyeCameras(ProcessInstantiator):
     def _start_component(self, cam_idx, cam_serial_num):
         print('cam_idx: {}, stream_oculus: {}'.format(cam_idx, True if self.configs.oculus_cam == cam_idx else False))
         component = FishEyeCamera(
-            cam_index=cam_serial_num, #self.configs.fisheye_cam_numbers[cam_idx],
+            cam_index=cam_serial_num,
             stream_configs = dict(
                 host = self.configs.host_address,
                 port = self.configs.fish_eye_cam_port_offset+ cam_idx,
@@ -82,7 +81,6 @@ class FishEyeCameras(ProcessInstantiator):
         component.stream()
 
     def _init_camera_processes(self):
-        # for cam_idx in range(len(self.configs.fisheye_cam_numbers)):
         for camera in self.configs.fisheye_cam_numbers:
             cam_idx = list(camera.keys())[0]
             cam_serial_num = camera[cam_idx]
@@ -105,10 +103,6 @@ class TeleOperator(ProcessInstantiator):
             self._init_sim_environment()
         # Start the Hand Detector
         self._init_detector()
-        # Start the keypoint transform
-        # self._init_keypoint_transform()
-        # self._init_visualizers()
-
 
         if configs.operate: 
             self._init_operator()
@@ -253,7 +247,6 @@ class Collector(ProcessInstantiator):
         if self.configs.sim_env is not True:
             print("Camera recorder starting")
             cam_idx = 0
-            # for cam_idx in range(len(self.configs.robot_cam_serial_numbers)):
             for camera in self.configs.robot_cam_serial_numbers:
                 cam_idx = list(camera.keys())[0]
                 self.processes.append(Process(
@@ -270,12 +263,10 @@ class Collector(ProcessInstantiator):
             import yaml
             with open('configs/fisheyecamera.yaml') as file:
                 fish_eye_cam_configs = yaml.load(file, Loader=yaml.FullLoader)
-            # for fisheye_cam_idx in range(len(fish_eye_cam_configs['fisheye_cam_numbers'])):
             for camera in fish_eye_cam_configs['fisheye_cam_numbers']:
                 fisheye_cam_idx = list(camera.keys())[0]
                 self.processes.append(Process(
                     target = self._start_fish_eye_component,
-                    # args = (cam_idx + 1 + fisheye_cam_idx, )
                     args = (fisheye_cam_idx, )
                 ))
         else:
@@ -328,7 +319,6 @@ class Collector(ProcessInstantiator):
             image_stream_port = self.configs.fish_eye_cam_port_offset + cam_idx,
             storage_path = self._storage_path,
             filename = 'cam_{}_rgb_video'.format(cam_idx)
-            # filename = 'cam_{}_rgb_video'.format(cam_idx + 1 + fish_eye_cam_idx)
         )
         component.stream()
 

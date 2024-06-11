@@ -13,7 +13,7 @@ class OculusVRStickDetector(Component):
         self.notify_component_start('vr detector')
 
         # Create a subscriber socket
-        self.stick_socket = create_subscriber_socket(VR_TCP_HOST, VR_TCP_PORT, VR_CONTROLLER_TOPIC) #bytes(VR_CONTROLLER_TOPIC, 'utf-8'))
+        self.stick_socket = create_subscriber_socket(VR_TCP_HOST, VR_TCP_PORT, VR_CONTROLLER_TOPIC)
 
         # Create a publisher for the controller state
         self.controller_state_publisher = ZMQKeypointPublisher(
