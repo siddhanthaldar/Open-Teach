@@ -10,10 +10,11 @@ import shutil
 import h5py
 from pathlib import Path
 
+PATH_TO_REPO = "/path/to/repo"
 FOLDER_NAMES = ["2024.06.08"]
 for FOLDER_NAME in FOLDER_NAMES:
-    DATA_PATH = Path(f"/path/to/repo/extracted_data/{FOLDER_NAME}")
-    SAVE_PATH = Path(f"/path/to/repo/processed_data/{FOLDER_NAME}")
+    DATA_PATH = Path(f"{PATH_TO_REPO}/extracted_data/{FOLDER_NAME}")
+    SAVE_PATH = Path(f"{PATH_TO_REPO}/processed_data/{FOLDER_NAME}")
     num_demos = None
     cam_indices = [1, 2, 3, 4, 51, 52]
     states_file_name = "states"

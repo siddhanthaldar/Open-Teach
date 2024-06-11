@@ -7,12 +7,13 @@ from pathlib import Path
 from scipy.spatial.transform import Rotation as R
 from sentence_transformers import SentenceTransformer
 
+PATH_TO_REPO = "/path/to/repo"
 FOLDER_NAMES = {
     "2024.06.08": None,
 }
 for FOLDER_NAME, task_names in FOLDER_NAMES.items():
-    PROCESSED_DATA_PATH = Path(f"/path/to/repo/processed_data/{FOLDER_NAME}")
-    SAVE_DATA_PATH = Path(f"/path/to/repo/processed_data_pkl/")
+    PROCESSED_DATA_PATH = Path(f"{PATH_TO_REPO}/processed_data/{FOLDER_NAME}")
+    SAVE_DATA_PATH = Path(f"{PATH_TO_REPO}/processed_data_pkl/")
     camera_indices = [1,2,3,4,51,52]
     img_size = (128, 128)
     NUM_DEMOS = None
