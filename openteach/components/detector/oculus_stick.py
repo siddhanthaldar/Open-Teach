@@ -36,13 +36,14 @@ class OculusVRStickDetector(Component):
         while True:
             try:
                 self.timer.start_loop()
+            
 
                 message = self.stick_socket.recv_string()
                 if message == "oculus_controller":
                     continue
 
                 controller_state = parse_controller_state(message)
-
+                
                 # Publish message
                 self._publish_controller_state(controller_state)
 

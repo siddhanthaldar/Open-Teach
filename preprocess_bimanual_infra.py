@@ -10,7 +10,7 @@ import shutil
 import h5py
 from pathlib import Path
 
-FOLDER_NAMES = ["2024.05.29", "2024.05.31"]
+FOLDER_NAMES = ["2024.06.08"]
 # FOLDER_NAME = "2024.05.29"
 for FOLDER_NAME in FOLDER_NAMES:
     DATA_PATH = Path(f"/mnt/robotlab/siddhant/projects/scaling_polytask/extracted_data/{FOLDER_NAME}")

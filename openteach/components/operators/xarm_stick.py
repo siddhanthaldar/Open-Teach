@@ -262,6 +262,5 @@ class XArmOperator(Operator):
         self.cartesian_publisher.pub_keypoints(position,"cartesian")
         self.joint_publisher.pub_keypoints(joint_position,"joint")
         self.cartesian_command_publisher.pub_keypoints(des_pose,"cartesian")
-
         if self.start_teleop:
             self.robot.arm_control(des_pose)
