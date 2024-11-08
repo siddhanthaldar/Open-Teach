@@ -175,7 +175,7 @@ class Collector(ProcessInstantiator):
     Returns all the recorder processes. Start the list of processes 
     to run the record data.
     """
-    def __init__(self, configs, demo_num, depth=False):
+    def __init__(self, configs, demo_num, depth=True): #False):
         super().__init__(configs)
         self.demo_num = demo_num
         self.depth = depth
@@ -260,7 +260,7 @@ class Collector(ProcessInstantiator):
                     target = self._start_rgb_component,
                     args = (cam_idx, )
                 ))
-
+                
                 if self.depth:
                     self.processes.append(Process(
                         target = self._start_depth_component,

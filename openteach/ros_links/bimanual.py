@@ -41,12 +41,13 @@ class Robot(XArmAPI):
         print("SLow reset working")
         self.set_mode_and_state(RobotControlMode.CARTESIAN_CONTROL, 0)
         status = self.set_servo_angle(angle=ROBOT_HOME_JS, wait=True, is_radian=True, speed=math.radians(50))
-        # self.set_mode_and_state(RobotControlMode.SERVO_CONTROL, 0)
+        self.set_mode_and_state(RobotControlMode.SERVO_CONTROL, 0)
         # status = self.set_servo_cartesian_aa(
         #             ROBOT_HOME_POSE_AA, wait=False, relative=False, mvacc=200, speed=50)
         assert status == 0, "Failed to set robot at home joint position"
         self.set_mode_and_state(RobotControlMode.SERVO_CONTROL, 0)
         self.set_gripper_position(self.gripper_start_state, wait=True)
+        # self.set_gripper_position(0.0, wait=True)
         time.sleep(0.1)
 
 
@@ -157,30 +158,30 @@ class DexArmControl():
         # # desired
         # desired_cartesian_pose = np.concatenate([pos, ori])
         # find current matrix
-        pos_curr = curr_cartesian_pose[:3]
-        ori_curr = curr_cartesian_pose[3:]
-        r_curr = R.from_rotvec(ori_curr).as_matrix()
-        matrix_curr = np.eye(4)
-        matrix_curr[:3, :3] = r_curr
-        matrix_curr[:3, 3] = pos_curr
-        # find transformation matrix
-        pos_delta = cartesian_pose[:3]
-        ori_delta = cartesian_pose[3:]
-        r_delta = R.from_rotvec(ori_delta).as_matrix()
-        matrix_delta = np.eye(4)
-        matrix_delta[:3, :3] = r_delta
-        matrix_delta[:3, 3] = pos_delta
-        # find desired matrix
-        matrix_desired = matrix_curr @ matrix_delta
-        # matrix_desired = matrix_delta @ matrix_curr
-        # pos_desired = matrix_desired[:3, 3]
-        pos_desired = pos_curr + pos_delta
-        r_desired = matrix_desired[:3, :3]
-        ori_desired = R.from_matrix(r_desired).as_rotvec()
-        desired_cartesian_pose = np.concatenate([pos_desired, ori_desired])
+        # pos_curr = curr_cartesian_pose[:3]
+        # ori_curr = curr_cartesian_pose[3:]
+        # r_curr = R.from_rotvec(ori_curr).as_matrix()
+        # matrix_curr = np.eye(4)
+        # matrix_curr[:3, :3] = r_curr
+        # matrix_curr[:3, 3] = pos_curr
+        # # find transformation matrix
+        # pos_delta = cartesian_pose[:3]
+        # ori_delta = cartesian_pose[3:]
+        # r_delta = R.from_rotvec(ori_delta).as_matrix()
+        # matrix_delta = np.eye(4)
+        # matrix_delta[:3, :3] = r_delta
+        # matrix_delta[:3, 3] = pos_delta
+        # # find desired matrix
+        # matrix_desired = matrix_curr @ matrix_delta
+        # # matrix_desired = matrix_delta @ matrix_curr
+        # # pos_desired = matrix_desired[:3, 3]
+        # pos_desired = pos_curr + pos_delta
+        # r_desired = matrix_desired[:3, :3]
+        # ori_desired = R.from_matrix(r_desired).as_rotvec()
+        # desired_cartesian_pose = np.concatenate([pos_desired, ori_desired])
         # print("current_cartesian_pose", curr_cartesian_pose)
         # print("desired_cartesian_pose", desired_cartesian_pose)
-        # desired_cartesian_pose = curr_cartesian_pose + cartesian_pose
+        desired_cartesian_pose = curr_cartesian_pose + cartesian_pose
 
         # desired gripper pose
         self.apply_gripper=False

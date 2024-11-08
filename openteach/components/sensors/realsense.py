@@ -8,7 +8,7 @@ from openteach.constants import *
 
 class RealsenseCamera(Component):
     def __init__(self, stream_configs, cam_serial_num, cam_id, cam_configs, stream_oculus = False,
-                 depth=False):
+                 depth=True): #False):
         # Disabling scientific notations
         np.set_printoptions(suppress=True)
         self.cam_id = cam_id

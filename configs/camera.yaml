@@ -6,9 +6,9 @@ defaults:
 
 robot_cam_serial_numbers:
   - 1: '239122072217'
-  - 2: '023322062082'
-  - 3: '233522071078'
-  - 4: '141722076049'
+  # - 2: '023322062082'
+  # - 3: '233522071078'
+  # - 4: '141722076049'
   
 cam_configs:
   width: 640 
@@ -22,5 +22,5 @@ num_cams: 3
 
 hydra:  
   output_subdir: null  
-  run:  
+  run:   
     dir: .

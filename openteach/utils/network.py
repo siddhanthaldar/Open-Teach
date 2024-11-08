@@ -149,6 +149,7 @@ class ZMQCameraSubscriber(threading.Thread):
             self.socket.setsockopt(zmq.SUBSCRIBE, b"intrinsics")
         elif self._topic_type == 'RGB':
             self.socket.setsockopt(zmq.SUBSCRIBE, b"rgb_image")
+            print('Subscribing to rgb_image')
         elif self._topic_type == 'Depth':
             self.socket.setsockopt(zmq.SUBSCRIBE, b"depth_image")
 
@@ -159,6 +160,7 @@ class ZMQCameraSubscriber(threading.Thread):
 
     def recv_rgb_image(self):
         raw_data = self.socket.recv()
+        print('Received rgb_image')
         data = raw_data.lstrip(b"rgb_image ")
         data = pickle.loads(data)
         encoded_data = np.fromstring(base64.b64decode(data['rgb_image']), np.uint8)
